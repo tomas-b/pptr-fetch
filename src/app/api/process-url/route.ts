@@ -50,7 +50,7 @@ export async function POST(request: Request) {
       
       // Navigate to the URL
       await page.goto(url, {
-        waitUntil: 'networkidle'
+        waitUntil: 'domcontentloaded'
       });
 
       // Take a screenshot
