@@ -32,72 +32,45 @@ export async function processUrl(url: string) {
 
 export async function takeScreenshot(url: string) {
   let browser = null;
-  
   try {
     if (!url) {
       throw new Error('URL is required');
     }
 
-    console.log('Launching browser...');
-    // Launch the browser with serverless-compatible configuration
     browser = await chromium.launch({
-      args: [
-        ...chromiumExecutable.args,
-        '--disable-gpu',
-        '--disable-dev-shm-usage',
-        '--disable-setuid-sandbox',
-        '--no-first-run',
-        '--no-sandbox',
-        '--no-zygote',
-        '--single-process',
-      ],
+      args: chromiumExecutable.args,
       executablePath: await chromiumExecutable.executablePath(),
       headless: true
     });
 
-    console.log('Creating new page...');
     // Create a new page
     const page = await browser.newPage();
     
-    // Set viewport to a reasonable size
-    await page.setViewport({
-      width: 1280,
-      height: 720
-    });
-    
-    console.log('Navigating to URL:', url);
-    // Navigate to the URL with a timeout
+    // Navigate to the URL
     await page.goto(url, {
-      waitUntil: 'networkidle',
-      timeout: 15000 // 15 second timeout
+      waitUntil: 'networkidle'
     });
 
-    console.log('Taking screenshot...');
-    // Take a screenshot with quality and size optimizations
+    // Take a screenshot
     const screenshot = await page.screenshot({
-      type: 'jpeg', // Use JPEG instead of PNG for smaller file size
-      quality: 80,  // Reduce quality for smaller file size
-      fullPage: false // Only capture viewport
+      type: 'png',
+      fullPage: true
     });
-
-    console.log('Processing screenshot...');
-    const base64Image = screenshot.toString('base64');
 
     return {
       success: true,
-      data: base64Image,
-      contentType: 'image/jpeg'
+      data: screenshot.toString('base64'),
+      contentType: 'image/png'
     };
 
   } catch (error) {
-    console.error('Screenshot error:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'An error occurred during screenshot capture'
+      error: error instanceof Error ? error.message : 'An error occurred'
     };
   } finally {
+    // Always close the browser
     if (browser) {
-      console.log('Closing browser...');
       await browser.close();
     }
   }
