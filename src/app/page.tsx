@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { processUrl, takeScreenshot } from './actions';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,10 +32,18 @@ export default function Home() {
         });
       }, 100);
 
-      const response = await processUrl(url);
+      const response = await fetch('/api/process-url', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url, action: 'cheerio' }),
+      });
+      const data = await response.json();
+      
       clearInterval(interval);
       setProgress(100);
-      setResult(response);
+      setResult(data);
     } catch (error) {
       setResult({ 
         success: false, 
@@ -68,10 +75,18 @@ export default function Home() {
         });
       }, 100);
 
-      const response = await takeScreenshot(url);
+      const response = await fetch('/api/process-url', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url, action: 'puppeteer' }),
+      });
+      const data = await response.json();
+      
       clearInterval(interval);
       setProgress(100);
-      setResult(response);
+      setResult(data);
     } catch (error) {
       setResult({ 
         success: false, 
