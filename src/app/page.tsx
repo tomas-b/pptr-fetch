@@ -8,8 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 
 export default function Home() {
-  const [url, setUrl] = useState('https://www.perfil.com/noticias/politica/la-evaluacion-de-los-sindicalistas-sobre-el-paro-de-la-cgt-contra-el-gobierno-hay-que-frenar-el-desastre.phtml');
-  const [result, setResult] = useState<{ success: boolean; data?: string; error?: string; message?: string } | null>(null);
+  const [url, setUrl] = useState('');
+  const [result, setResult] = useState<{ success: boolean; data?: string; error?: string; message?: string; contentType?: string } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [activeAction, setActiveAction] = useState<'cheerio' | 'puppeteer' | null>(null);
   const [progress, setProgress] = useState(0);
@@ -140,9 +140,19 @@ export default function Home() {
                   {result.message && (
                     <p className="mb-4 text-muted-foreground">{result.message}</p>
                   )}
-                  <pre className="whitespace-pre-wrap break-words bg-muted p-4 rounded-md text-sm">
-                    {result.data}
-                  </pre>
+                  {result.contentType?.includes('image') ? (
+                    <div className="relative w-full aspect-video">
+                      <img 
+                        src={`data:${result.contentType};base64,${result.data}`}
+                        alt="Screenshot result"
+                        className="rounded-md w-full h-auto object-contain"
+                      />
+                    </div>
+                  ) : (
+                    <pre className="whitespace-pre-wrap break-words bg-muted p-4 rounded-md text-sm">
+                      {result.data}
+                    </pre>
+                  )}
                 </>
               ) : (
                 <p className="text-destructive">Error: {result.error}</p>
